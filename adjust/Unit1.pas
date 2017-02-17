@@ -56,12 +56,10 @@ type
     orscrpt_merge_ec: TOraScript;
     orscrpt_update_headquarter_orgcode_ec: TOraScript;
     btn_merge: TButton;
-    orqry_check_merge_result: TOraQuery;
     dbgrd_result: TDBGrid;
     ds_result: TDataSource;
     lbl_result: TLabel;
     lbl_log: TLabel;
-    btn_check_merge: TButton;
     btn_check_split: TButton;
     orqry_check_split_result: TOraQuery;
     lbl_status: TLabel;
@@ -79,7 +77,6 @@ type
     procedure BitBtn4Click(Sender: TObject);
     procedure btn_showproClick(Sender: TObject);
     procedure btn_mergeClick(Sender: TObject);
-    procedure btn_check_mergeClick(Sender: TObject);
     procedure btn_check_splitClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
@@ -159,7 +156,6 @@ begin
   Form1.BitBtn2.Enabled := disable;
   Form1.btn_showpro.Enabled := disable;
   Form1.btn_merge.Enabled := disable;
-  Form1.btn_check_merge.Enabled := disable;
   Form1.btnExport.Enabled := disable;
   Form1.BitBtn1.Enabled := disable;
   Form1.BitBtn3.Enabled := disable;
@@ -324,41 +320,27 @@ begin
 
   Form1.WriteLog('配置文件内容:' + condition);
 
-  Form1.OraQuery1.MacroByName('rural_feelog_ec_temp1').Value := 'rural_feelog_ec_temp1_' +
-    Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
-  Form1.OraQuery1.MacroByName('feelog_ec').Value := 'feelog_ec_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
-  Form1.DropTable('rural_feelog_ec_temp1_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2));
-  //添加按配置文件查找的内容
-  Form1.OraQuery1.MacroByName('condition').Value := condition;
-  Form1.WriteLog(Form1.OraQuery1.SQL.Text);
-  Form1.OraQuery1.ExecSQL;
 
-  Form1.OraQuery2.MacroByName('rural_feelog_pc_temp1').Value := 'rural_feelog_pc_temp1_' +
-    Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
-  Form1.OraQuery2.MacroByName('feelog_pc').Value := 'feelog_pc_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2); ;
-  Form1.DropTable('rural_feelog_pc_temp1_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2));
-  //按配置文件 添加指定关键字
-  Form1.OraQuery2.MacroByName('condition').Value := condition;
-  Form1.WriteLog(Form1.OraQuery2.SQL.Text);
-  Form1.OraQuery2.ExecSQL;
 
   //自动配置fee_org
-  Form1.WriteLog('开始合并企业机构');
-  Form1.orscrpt_merge_ec.MacroByName('rural_feelog_ec_temp1').Value := 'rural_feelog_ec_temp1_' +
+  Form1.WriteLog('开始更新企业机构');
+
+  Form1.orscrpt_merge_ec.MacroByName('feelog_ec_normal').Value := 'feelog_ec_normal_' +
     Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
   Form1.orscrpt_merge_ec.MacroByName('condition').Value := condition;
   Form1.WriteLog(Form1.orscrpt_merge_ec.SQL.Text);
   Form1.orscrpt_merge_ec.Execute;
-  Form1.WriteLog('结束合并企业机构');
+  Form1.WriteLog('结束更新企业机构');
 
 
-  Form1.WriteLog('开始合并个人机构');
-  Form1.orscrpt_merge_pc.MacroByName('rural_feelog_pc_temp1').Value := 'rural_feelog_pc_temp1_' +
+  Form1.WriteLog('开始更新个人机构');
+
+  Form1.orscrpt_merge_pc.MacroByName('feelog_pc_normal').Value := 'feelog_pc_normal_' +
     Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
   Form1.orscrpt_merge_pc.MacroByName('condition').Value := condition;
   Form1.WriteLog(Form1.orscrpt_merge_pc.SQL.Text);
   Form1.orscrpt_merge_pc.Execute;
-  Form1.WriteLog('结束合并个人机构');
+  Form1.WriteLog('结束更新个人机构');
 
   SetItemDisable(true);
 
@@ -369,38 +351,6 @@ var
   ID: Dword;
 begin
   CreateThread(nil, 0, @procMergeOrg, nil, 0, ID);
-end;
-
-
-procedure TForm1.btn_check_mergeClick(Sender: TObject);
-var
-  mesString: string;
-begin
-  orqry_check_merge_result.MacroByName('rural_feelog_pc_temp1').Value := 'rural_feelog_pc_temp1_' + ComboBox1.Text + RightStr('0' + ComboBox2.Text, 2);
-  orqry_check_merge_result.MacroByName('rural_feelog_ec_temp1').Value := 'rural_feelog_ec_temp1_' + ComboBox1.Text + RightStr('0' + ComboBox2.Text, 2);
-  WriteLog(orqry_check_merge_result.SQL.Text);
-  orqry_check_merge_result.FetchAll := True;
-  orqry_check_merge_result.Open();
-
-  ds_result.DataSet := orqry_check_merge_result;
-
-
-  dbgrd_result.Columns.Items[0].Width := 200;
-  dbgrd_result.Columns.Items[1].Width := 100;
-  dbgrd_result.Columns.Items[2].Width := 80;
-  dbgrd_result.Columns.Items[3].Width := 50;
-
-
-  if (orqry_check_merge_result.RecordCount > 0) then
-  begin
-    mesString := '存在 ' + IntToStr(orqry_check_merge_result.RecordCount) + ' 个无法自动合并的企业，请检查！！！';
-    showmessage(mesString);
-  end
-  else
-  begin
-    mesString := '检查通过，可以执行拆分DMP文件！';
-    showmessage(mesString);
-  end;
 end;
 
 
@@ -429,6 +379,15 @@ begin
   Form1.WriteLog('配置文件内容:' + condition);
 
   Form1.WriteLog('开始拆分企业机构');
+
+  Form1.OraQuery1.MacroByName('rural_feelog_ec_temp1').Value := 'rural_feelog_ec_temp1_' +
+    Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
+  Form1.OraQuery1.MacroByName('feelog_ec').Value := 'feelog_ec_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
+  Form1.DropTable('rural_feelog_ec_temp1_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2));
+  //添加按配置文件查找的内容
+  Form1.OraQuery1.MacroByName('condition').Value := condition;
+  Form1.WriteLog(Form1.OraQuery1.SQL.Text);
+  Form1.OraQuery1.ExecSQL;
 
   // 生成rural_feelog_ec_temp2，待调整级别的数据
   //上一步结果与fee_org关联，该部分数据为总部机构已建立财务机构的数据
@@ -506,6 +465,16 @@ begin
 
 
   Form1.WriteLog('开始拆分个人机构');
+
+  Form1.OraQuery2.MacroByName('rural_feelog_pc_temp1').Value := 'rural_feelog_pc_temp1_' +
+    Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
+  Form1.OraQuery2.MacroByName('feelog_pc').Value := 'feelog_pc_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2); ;
+  Form1.DropTable('rural_feelog_pc_temp1_' + Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2));
+  //按配置文件 添加指定关键字
+  Form1.OraQuery2.MacroByName('condition').Value := condition;
+  Form1.WriteLog(Form1.OraQuery2.SQL.Text);
+  Form1.OraQuery2.ExecSQL;
+
   Form1.OraQuery3.MacroByName('rural_feelog_pc_temp2').Value := 'rural_feelog_pc_temp2_' +
     Form1.ComboBox1.Text + RightStr('0' + Form1.ComboBox2.Text, 2);
   Form1.OraQuery3.MacroByName('rural_feelog_pc_temp1').Value := 'rural_feelog_pc_temp1_' +
@@ -628,14 +597,20 @@ var
   s1: TStringList;
   i: Integer;
 begin
+
+
   s1 := TStringList.Create;
 
   SetItemDisable(False);
   try
+    orqry_check_split_result.close();
+    ds_result.DataSet := orqry_check_split_result;
+
     read_ini := tinifile.Create(extractfilepath(paramstr(0)) + 'config.ini');
     types := read_ini.ReadString('Split_Keyword', 'words', '');
     s1.Delimiter := ',';
     s1.DelimitedText := types;
+
 
     for i := 0 to s1.Count - 1 do
     begin
@@ -652,12 +627,12 @@ begin
     orqry_check_split_result.FetchAll := True;
     orqry_check_split_result.Open();
 
-
     ds_result.DataSet := orqry_check_split_result;
 
-    dbgrd_result.Columns.Items[0].Width := 200;
-    dbgrd_result.Columns.Items[1].Width := 120;
-
+    for i := 0 to dbgrd_result.Columns.Count - 1 do
+    begin
+      dbgrd_result.Columns.Items[i].Width := 120;
+    end;
 
     if (orqry_check_split_result.RecordCount > 0) then
     begin
@@ -669,12 +644,12 @@ begin
       mesString := '检查通过！';
       showmessage(mesString);
     end;
+
+
   finally
     SetItemDisable(True);
   end;
 end;
-
-
 
 
 function procExportTable(p: Pointer): Integer; stdcall;

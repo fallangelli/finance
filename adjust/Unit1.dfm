@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 218
+  Left = 243
   Top = 171
-  Width = 1387
-  Height = 663
+  Width = 1373
+  Height = 683
   Caption = #20892#20449#31038#20998#36134
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -33,14 +33,14 @@ object Form1: TForm1
   end
   object lbl_result: TLabel
     Left = 336
-    Top = 56
+    Top = 264
     Width = 137
     Height = 16
     AutoSize = False
     Caption = #26816#26597#32467#26524
   end
   object lbl_log: TLabel
-    Left = 832
+    Left = 336
     Top = 56
     Width = 153
     Height = 16
@@ -49,7 +49,7 @@ object Form1: TForm1
   end
   object lbl_status: TLabel
     Left = 40
-    Top = 520
+    Top = 544
     Width = 273
     Height = 33
     AutoSize = False
@@ -116,10 +116,10 @@ object Form1: TForm1
       '12')
   end
   object Memo1: TMemo
-    Left = 832
+    Left = 336
     Top = 80
-    Width = 513
-    Height = 521
+    Width = 1009
+    Height = 169
     ScrollBars = ssVertical
     TabOrder = 2
   end
@@ -133,8 +133,8 @@ object Form1: TForm1
     OnClick = BitBtn2Click
   end
   object BitBtn1: TBitBtn
-    Left = 39
-    Top = 412
+    Left = 31
+    Top = 356
     Width = 130
     Height = 45
     Caption = #25286#20998'DMP'#25991#20214
@@ -175,19 +175,26 @@ object Form1: TForm1
     OnClick = btn_showproClick
   end
   object btn_merge: TButton
-    Left = 39
-    Top = 352
+    Left = 31
+    Top = 408
     Width = 130
-    Height = 41
-    Caption = #21512#24182#36130#21153#26426#26500
+    Height = 57
+    Caption = #26356#26032'('#35831#25163#21160#26356#26032'feeorg'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 8
+    WordWrap = True
     OnClick = btn_mergeClick
   end
   object dbgrd_result: TDBGrid
     Left = 336
-    Top = 80
-    Width = 465
-    Height = 521
+    Top = 288
+    Width = 1009
+    Height = 313
     DataSource = ds_result
     Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
     TabOrder = 9
@@ -197,28 +204,19 @@ object Form1: TForm1
     TitleFont.Name = 'MS Sans Serif'
     TitleFont.Style = []
   end
-  object btn_check_merge: TButton
-    Left = 183
-    Top = 352
-    Width = 130
-    Height = 41
-    Caption = #26816#26597#21512#24182#32467#26524
-    TabOrder = 10
-    OnClick = btn_check_mergeClick
-  end
   object btn_check_split: TButton
-    Left = 183
-    Top = 412
-    Width = 130
-    Height = 45
+    Left = 184
+    Top = 352
+    Width = 129
+    Height = 113
     Caption = #26816#26597#25286#20998#32467#26524
-    TabOrder = 11
+    TabOrder = 10
     OnClick = btn_check_splitClick
   end
   object btnExport: TBitBtn
-    Left = 39
-    Top = 468
-    Width = 274
+    Left = 31
+    Top = 476
+    Width = 282
     Height = 45
     Caption = #23548#20986'DMP'#25991#20214
     Font.Charset = DEFAULT_CHARSET
@@ -227,7 +225,7 @@ object Form1: TForm1
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 12
+    TabOrder = 11
     OnClick = btnExportClick
   end
   object OraSession1: TOraSession
@@ -1368,62 +1366,24 @@ object Form1: TForm1
   end
   object orscrpt_merge_pc: TOraScript
     SQL.Strings = (
-      'MERGE INTO fee_org f'
-      '     USING (  SELECT f.headquarter_orgname orgname,'
-      '                     MAX (f.headquarter_orgcode) orgcode,'
-      '                     o.provid province'
-      '                FROM &rural_feelog_pc_temp1 f'
-      '                     INNER JOIN pc_org_temp o'
-      '                        ON f.headquarter_orgcode = O.ORGCODE'
-      '               WHERE headquarter_orgcode <> branch_orgcode'
-      '                     AND (1 = 0 &condition)'
-      
-        '            GROUP BY f.headquarter_orgcode, f.headquarter_orgnam' +
-        'e, O.provid'
-      '              HAVING NOT EXISTS'
-      '                        (SELECT pc_orgcode'
-      '                           FROM fee_org fo'
-      
-        '                          WHERE fo.pc_orgcode = f.headquarter_or' +
-        'gcode)'
-      '            UNION'
-      '              SELECT branch_orgname orgname,'
-      '                     MAX (f.branch_orgcode) orgcode,'
-      '                     f.branch_province province'
-      '                FROM &rural_feelog_pc_temp1 f'
-      
-        '                     INNER JOIN pc_org_temp o ON f.BRANCH_ORGCOD' +
-        'E = O.ORGCODE'
-      '               WHERE     headquarter_orgcode <> branch_orgcode'
-      '                     AND O.ORGLEVEL = 2 AND (1 = 0 &condition)'
-      
-        '            GROUP BY f.branch_orgname, f.branch_orgcode, f.branc' +
-        'h_province'
-      '              HAVING NOT EXISTS'
-      '                        (SELECT pc_orgcode'
-      '                           FROM fee_org fo'
-      
-        '                          WHERE fo.pc_orgcode = f.branch_orgcode' +
-        ')) k'
-      '        ON (   k.orgname = f.orgname'
-      '            OR k.orgname || '#39#32929#20221#26377#38480#20844#21496#39' = f.orgname'
-      '            OR k.orgname = f.orgname || '#39#32929#20221#26377#38480#20844#21496#39')'
-      'WHEN MATCHED'
-      'THEN'
-      '   UPDATE SET f.pc_orgcode = k.orgcode'
-      'WHEN NOT MATCHED'
-      'THEN'
-      '   INSERT     (f.orgname, f.pc_orgcode, f.province)'
-      '       VALUES (k.orgname, k.orgcode, k.province);'
-      ''
-      ''
+      'update &feelog_pc_normal t'
+      '   set t.headquarter_orgname = t.branch_orgname,'
+      '       t.headquarter_orgcode = t.branch_orgcode,'
+      '       t.level1name          = t.level2name,'
+      '       t.level2name          = null'
+      ' where t.transaction_no in'
+      ' ('
+      ' select transaction_no from &feelog_pc_normal f'
+      'where f.headquarter_orgcode <> f.branch_orgcode'
+      ' and (1=0 &condition)'
+      ' );'
       ''
       'COMMIT;')
-    Left = 24
-    Top = 568
+    Left = 32
+    Top = 608
     MacroData = <
       item
-        Name = 'rural_feelog_pc_temp1'
+        Name = 'feelog_pc_normal'
       end
       item
         Name = 'condition'
@@ -1466,8 +1426,8 @@ object Form1: TForm1
       ');'
       ''
       'commit;')
-    Left = 136
-    Top = 568
+    Left = 144
+    Top = 608
     MacroData = <
       item
         Name = 'rural_feelog_pc_temp2'
@@ -1475,54 +1435,24 @@ object Form1: TForm1
   end
   object orscrpt_merge_ec: TOraScript
     SQL.Strings = (
-      'MERGE INTO fee_org f'
-      '     USING ('
-      '  SELECT f.headquarter_orgname orgname,'
-      '         MAX (f.headquarter_orgcode) orgcode,'
-      '         o.AREACODE province'
-      '    FROM &rural_feelog_ec_temp1 f'
-      
-        '         INNER JOIN ec_org_temp o ON f.headquarter_orgcode = O.O' +
-        'RGCODE'
-      '   WHERE     headquarter_orgcode <> branch_orgcode'
-      '             AND (1 = 0 &condition)'
-      
-        'GROUP BY f.headquarter_orgcode, f.headquarter_orgname, O.AREACOD' +
-        'E'
-      
-        'having not exists (select ec_orgcode from fee_org fo where fo.ec' +
-        '_orgcode = f.headquarter_orgcode)'
-      'UNION'
-      '  SELECT branch_orgname orgname,'
-      '         MAX (f.branch_orgcode) orgcode,'
-      '         f.branch_province province'
-      '    FROM &rural_feelog_ec_temp1 f '
-      
-        '         INNER JOIN ec_org_temp o ON f.BRANCH_ORGCODE = O.ORGCOD' +
-        'E'
-      '   WHERE     headquarter_orgcode <> branch_orgcode'
-      '         AND O.ORGLEVEL = 2 AND (1 = 0 &condition)'
-      'GROUP BY f.branch_orgname, f.branch_orgcode, f.branch_province'
-      
-        'having  not exists (select ec_orgcode from fee_org fo where fo.e' +
-        'c_orgcode = f.branch_orgcode)) k'
-      
-        '        ON (k.orgname = f.orgname or k.orgname||'#39#32929#20221#26377#38480#20844#21496#39' = f.org' +
-        'name or k.orgname = f.orgname||'#39#32929#20221#26377#38480#20844#21496#39')'
-      'WHEN MATCHED'
-      'THEN'
-      '   UPDATE SET f.ec_orgcode = k.orgcode, f.province = k.province'
-      'WHEN NOT MATCHED'
-      'THEN'
-      '   INSERT     (f.orgname, f.ec_orgcode, f.province)'
-      '       VALUES (k.orgname, k.orgcode, k.province);'
+      'update &feelog_ec_normal t'
+      '   set t.headquarter_orgname = t.branch_orgname,'
+      '       t.headquarter_orgcode = t.branch_orgcode,'
+      '       t.level1name          = t.level2name,'
+      '       t.level2name          = null'
+      ' where t.transaction_no in'
+      ' ('
+      ' select transaction_no from &feelog_ec_normal f'
+      'where f.headquarter_orgcode <> f.branch_orgcode'
+      ' and (1=0 &condition)'
+      ' );'
       ''
       'commit;')
-    Left = 64
-    Top = 568
+    Left = 72
+    Top = 608
     MacroData = <
       item
-        Name = 'rural_feelog_ec_temp1'
+        Name = 'feelog_ec_normal'
       end
       item
         Name = 'condition'
@@ -1565,87 +1495,17 @@ object Form1: TForm1
       ');'
       ''
       'commit;')
-    Left = 176
-    Top = 568
+    Left = 184
+    Top = 608
     MacroData = <
       item
         Name = 'rural_feelog_ec_temp2'
       end>
   end
-  object orqry_check_merge_result: TOraQuery
-    SQL.Strings = (
-      
-        'SELECT  headquarter_orgname name,headquarter_orgcode code, O.pro' +
-        'vid province, '#39#20010#20154#39' category'
-      '    FROM &rural_feelog_pc_temp1 f'
-      
-        '    INNER JOIN pc_org_temp o ON f.headquarter_orgcode = O.ORGCOD' +
-        'E'
-      '   WHERE     headquarter_orgcode <> branch_orgcode'
-      '         AND (1 = 0 &condition)'
-      '         AND NOT EXISTS'
-      '                (SELECT pc_orgcode'
-      '                   FROM fee_org fo'
-      '                  WHERE fo.pc_orgcode = f.headquarter_orgcode)'
-      'GROUP BY headquarter_orgcode, headquarter_orgname, O.provid'
-      'UNION'
-      
-        '  SELECT  branch_orgname name,branch_orgcode code, branch_provin' +
-        'ce province, '#39#20010#20154#39' category'
-      '    FROM &rural_feelog_pc_temp1 f'
-      '     INNER JOIN pc_org_temp o ON f.BRANCH_ORGCODE = O.ORGCODE'
-      '   WHERE     headquarter_orgcode <> branch_orgcode'
-      '         AND O.ORGLEVEL = 2 AND (1 = 0 &condition)'
-      '         AND NOT EXISTS'
-      '                (SELECT pc_orgcode'
-      '                   FROM fee_org fo'
-      '                  WHERE fo.pc_orgcode = f.branch_orgcode)'
-      'GROUP BY branch_orgcode, branch_orgname,branch_province'
-      'UNION'
-      
-        'SELECT  headquarter_orgname name,headquarter_orgcode code ,  O.A' +
-        'REACODE province, '#39#20225#19994#39' category'
-      '    FROM &rural_feelog_ec_temp1 f'
-      
-        '     INNER JOIN ec_org_temp o ON f.headquarter_orgcode = O.ORGCO' +
-        'DE'
-      '   WHERE     headquarter_orgcode <> branch_orgcode'
-      '         AND (1 = 0 &condition)'
-      '         AND NOT EXISTS'
-      '                (SELECT ec_orgcode'
-      '                   FROM fee_org fo'
-      '                  WHERE fo.ec_orgcode = f.headquarter_orgcode)'
-      'GROUP BY headquarter_orgcode, headquarter_orgname, O.AREACODE'
-      'UNION'
-      
-        '  SELECT  branch_orgname name,branch_orgcode code , branch_provi' +
-        'nce province, '#39#20225#19994#39' category'
-      '    FROM &rural_feelog_ec_temp1 f'
-      '     INNER JOIN ec_org_temp o ON f.BRANCH_ORGCODE = O.ORGCODE'
-      '   WHERE     headquarter_orgcode <> branch_orgcode'
-      '      AND O.ORGLEVEL = 2 AND (1 = 0 &condition)'
-      '         AND NOT EXISTS'
-      '                (SELECT ec_orgcode'
-      '                   FROM fee_org fo'
-      '                  WHERE fo.ec_orgcode = f.branch_orgcode)'
-      'GROUP BY branch_orgcode, branch_orgname,branch_province')
-    Left = 240
-    Top = 568
-    MacroData = <
-      item
-        Name = 'rural_feelog_pc_temp1'
-      end
-      item
-        Name = 'condition'
-      end
-      item
-        Name = 'rural_feelog_ec_temp1'
-      end>
-  end
   object ds_result: TDataSource
     AutoEdit = False
-    Left = 280
-    Top = 568
+    Left = 288
+    Top = 608
   end
   object orqry_check_split_result: TOraQuery
     SQL.Strings = (
@@ -1656,8 +1516,8 @@ object Form1: TForm1
       'select * from &feelog_pc_normal f'
       'where f.headquarter_orgcode <> f.branch_orgcode'
       ' and (1=0 &condition)')
-    Left = 240
-    Top = 568
+    Left = 248
+    Top = 608
     MacroData = <
       item
         Name = 'feelog_ec_normal'
