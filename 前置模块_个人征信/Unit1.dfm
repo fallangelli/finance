@@ -176,7 +176,7 @@ object Form1: TForm1
     Left = 236
     Top = 197
     Width = 179
-    Height = 21
+    Height = 24
     TabOrder = 11
     Text = #25991#20214#21517
     Visible = False
@@ -696,7 +696,7 @@ object Form1: TForm1
       't.QUERYTYPE,'
       't.ACTUALNAME,'
       't.POLICETYPE '
-      'from queryrecord@dblink_pc_query t   '
+      'from queryrecord@dblink_pc_manage t   '
       'where t.querydate >=:StartTime'
       'and t.querydate <:EndTime')
     Left = 432
